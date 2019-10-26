@@ -1,0 +1,159 @@
+---
+title: "30-feature engineering"
+output:
+  html_document:
+    df_print: paged
+---
+4. Using best practices, write four functions which add engineered features to the dataset, including a description and rationale. Include a test to determine whether the features are working as intended. 
+
+interactions
+
+## check how many unique values each variables have.
+
+From the result below, we can find that there are some variables only have few unique values.
+
+Combining the result below with the information from the data description,"rad" & "chas" should be factor variables.
+```{r checkvar}
+col_uni(df)
+```
+
+### 1,Turn chas and rad into factors.
+
+We need to let R know that these variables are factors instead of numeric as the different number represent different meaning here. 
+
+chas
+Charles River dummy variable (= 1 if tract bounds river; 0 otherwise).
+
+rad
+index of accessibility to radial highways.
+
+
+```{r vartofactor}
+tof <- function(x) (as.factor(x))
+
+tofactor <- function(df,var){
+  df %>%
+    mutate_at(var, list(fact = tof))
+}
+
+df <- tofactor(df,c("rad","chas"))
+
+#test
+is.factor(df$chas_fact)
+is.factor(df$rad_fact)
+
+df %>%
+  assert(is.factor,chas_fact) %>%
+  assert(is.factor, rad_fact)
+```
+
+
+### 2,standardize
+
+standardize numeric variables sometimes will make the prediction better.
+
+As standardizing the features around the center and 0 with a standard deviation of 1 is important when we compare measurements that have different units. Variables that are measured at different scales do not contribute equally to the analysis and might end up creating a bais.
+
+```{r std}
+# standardize formula
+scale2 <- function(x, na.rm = FALSE) (x - mean(x, na.rm = na.rm)) / sd(x, na.rm = na.rm)
+
+varstd <- function(df,var){
+  df %>% 
+    mutate_at(var, list(std = scale2))
+}
+
+df <- varstd(df,var = c("crim" ,"zn","indus","nox", "rm", "age", "dis","tax","ptratio", "b", "lstat", "medv"))
+
+#test
+
+df %>%
+  select(contains("_std")) %>%
+  map(mean) %>%
+  map(round)
+
+df %>%
+  select(contains("_std")) %>%
+  map(sd)
+```
+
+### 3, levels of crime rate
+
+Base on the histogram of crime rate, we can find that the distribution of crime rate is skewed in our dataset.
+
+In the real world, people do not usually know the crime rate distribution in their city. In other word, they do not know how high the crime rate is dangerous in their area.
+
+For example, a 30% crime rate might be relatively low in nashville but very high in Boston. If we categorize crime rates into different level, we could understand how crime rates affect our housing value better. 
+
+For better understanding of the crime rate, I will cut the crime rates in to different level.I want to categorize crime rates into "low" ,"median", "high" by using the median and 3rd quatrtile. 
+
+crime rates below median are "low"
+crime rates between the median and 3rd quatrtile are "median"
+crime rates higher than 3rd quatrile are "high"
+
+The output should be "character" with unique values "low", "median" and "high".
+```{r levelcrime}
+summary(df$crim)
+ggplot(df,aes(x = crim)) +
+  geom_histogram()
+
+
+ggplot(df,aes(x = crim_std)) +
+  geom_histogram()
+
+crime_level <- function(df) {
+  df %>% 
+    mutate(crim_level = case_when(
+      crim <= 0.09 ~ "low",
+      crim <= 3.7 ~"median",
+      TRUE ~ "high"
+    ))
+}
+
+df <- crime_level(df)
+#test
+unique(df$crim_level)
+```
+
+
+### 4, levels of black.
+
+$black$
+
+1000(Bk - 0.63)^2 where Bk is the proportion of blacks by town.
+
+In our dataset, the scientists used a formula to evaluate the proportion of blacks by town. 
+
+The variable transformation is motivated by economic considerations, as explained in the original paper. The transformation is defined in this way because the authors expected that the transformed Black would be correlated with the target variable (median house price).
+
+This transformation makes people hard to understand the variable. As a result, I want to categorize the variable so that we can easier to understand how this variable affect the house's value. 
+
+From the distribution plot, I want to use 100, 300 to cut the variable.
+
+b smaller than 100 are "few-black"
+b between 100 and 300 are "normal"
+b more than 300 are "more-black"
+
+The output should be "character" with unique values "few-black","normal" and "more-black"
+
+```{r levelblack}
+summary(df$b)
+ggplot(df,aes(x = b)) +
+  geom_histogram()
+
+black_level <- function(df) {
+  df %>% 
+    mutate(black_level = case_when(
+      b <= 100 ~ "few-black",
+      b <= 300 ~"normal",
+      TRUE ~ "more-black"
+    ))
+}
+
+df <- black_level(df)
+#test
+unique(df$black_level)
+
+```
+
+

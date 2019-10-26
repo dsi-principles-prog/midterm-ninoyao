@@ -1,0 +1,56 @@
+---
+title: "40-model"
+output: html_notebook
+---
+
+## Prepare the data for modeling
+
+
+After applying all the 4 feature engineering functions, your dataset should have following result.
+
+![result](.\result.png)
+
+```{r assert}
+# test whether the crime_level,black_level, rad_factor, chas_factor and the original variables.
+
+#if you name the new variable different, remeber to change the argument in the function.
+df <- tofactor(df,c("rad","chas"))
+
+df <- varstd(df,var = c("crim" ,"zn","indus","nox", "rm", "age", "dis","tax","ptratio", "b", "lstat", "medv"))
+
+df <- crime_level(df) 
+
+df <- black_level(df)
+
+
+df %>% 
+  assert(in_set(c("low", "median", "high")), crim_level) %>%
+  assert(in_set(c("few-black","normal","more-black")),black_level) %>%
+  assert(in_set(c(1, 0)), chas)%>% 
+  assert(in_set(c(0:24)), rad)%>% 
+  assert(within_bounds(0,1), nox) %>%
+  assert(within_bounds(0,100), zn)%>%
+  assert(within_bounds(0,100), crim)%>%
+  assert(within_bounds(0,Inf),indus)%>%
+  assert(within_bounds(0,120), age) %>%
+  assert(within_bounds(0,Inf), dis) %>%
+  assert(within_bounds(0,100), ptratio) %>%
+  assert(within_bounds(0,Inf), tax) %>%
+  assert(within_bounds(0,Inf), medv) %>%
+  assert(within_bounds(0,Inf), b) %>%
+  assert(within_bounds(0,100), lstat) %>%
+  verify(is.factor(rad_fact)) %>%
+  verify(is.factor(chas_fact))
+
+# test the standarized function.
+
+df %>%
+  select(contains("_std")) %>%
+  map(mean) %>%
+  map(round)
+
+df %>%
+  select(contains("_std")) %>%
+  map(sd)
+```
+

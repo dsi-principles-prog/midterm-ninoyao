@@ -10,6 +10,8 @@ After applying all the 4 feature engineering functions, your dataset should have
 
 ![result](.\result.png)
 
+## build features, prep the data for modeling and asserting.
+
 ```{r assert}
 # test whether the crime_level,black_level, rad_factor, chas_factor and the original variables.
 

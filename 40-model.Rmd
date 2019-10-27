@@ -54,5 +54,8 @@ df %>%
 df %>%
   select(contains("_std")) %>%
   map(sd)
+
+df %>%
+  select(medv,everything())
 ```
 

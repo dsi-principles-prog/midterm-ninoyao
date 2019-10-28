@@ -107,7 +107,8 @@ crime_level <- function(variables) {
 
 df <- crime_level(df)
 #test
-unique(df$crim_level)
+df %>% 
+  assert(in_set(c("low", "median", "high")), crim_level) 
 ```
 
 

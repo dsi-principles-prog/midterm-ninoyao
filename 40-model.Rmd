@@ -16,18 +16,11 @@ After applying all the 4 feature engineering functions, your dataset should have
 # test whether the crime_level,black_level, rad_factor, chas_factor and the original variables.
 
 #if you name the new variable different, remeber to change the argument in the function.
-df <- tofactor(df,c("rad","chas"))
 
-df <- varstd(df,var = c("crim" ,"zn","indus","nox", "rm", "age", "dis","tax","ptratio", "b", "lstat", "medv"))
-
-df <- crime_level(df) 
-
-df <- black_level(df)
+#the input of crime_level and black_level should be dataframe
 
 
-df %>% 
-  assert(in_set(c("low", "median", "high")), crim_level) %>%
-  assert(in_set(c("few-black","normal","more-black")),black_level) %>%
+df_final <- df %>% 
   assert(in_set(c(1, 0)), chas)%>% 
   assert(in_set(c(0:24)), rad)%>% 
   assert(within_bounds(0,1), nox) %>%
@@ -41,21 +34,37 @@ df %>%
   assert(within_bounds(0,Inf), medv) %>%
   assert(within_bounds(0,Inf), b) %>%
   assert(within_bounds(0,100), lstat) %>%
+  varstd(var = c("crim" ,"zn","indus","nox", "rm", "age", "dis","tax","ptratio", "b", "lstat", "medv")) %>% #std function
+  verify(round(mean(dis_std)) == 0) %>%
+  verify(sd(dis_std) == 1) %>%
+  verify(round(mean(crim_std)) == 0) %>%
+  verify(sd(crim_std) == 1) %>%
+  verify(round(mean(zn_std)) == 0) %>%
+  verify(sd(zn_std) == 1) %>%
+  verify(round(mean(nox_std)) == 0) %>%
+  verify(round(sd(nox_std)) == 1) %>%
+  verify(round(mean(rm_std)) == 0) %>%
+  verify(sd(rm_std) == 1) %>%
+  verify(round(mean(age_std)) == 0) %>%
+  verify(sd(age_std) == 1) %>%
+  verify(round(mean(dis_std)) == 0) %>%
+  verify(sd(dis_std) == 1) %>%
+  verify(round(mean(tax_std)) == 0) %>%
+  verify(round(sd(tax_std)) == 1) %>%
+  verify(round(mean(ptratio_std)) == 0) %>%
+  verify(round(sd(ptratio_std)) == 1) %>%
+  verify(round(mean(lstat_std)) == 0) %>%
+  verify(sd(lstat_std) == 1) %>%
+  verify(round(mean(medv_std)) == 0) %>%
+  verify(sd(medv_std) == 1) %>%
+  tofactor(c("rad", "chas")) %>% # tofact fe function 1
   verify(is.factor(rad_fact)) %>%
-  verify(is.factor(chas_fact))
-
-# test the standarized function.
-
-df %>%
-  select(contains("_std")) %>%
-  map(mean) %>%
-  map(round)
-
-df %>%
-  select(contains("_std")) %>%
-  map(sd)
-
-df %>%
+  verify(is.factor(chas_fact)) %>%
+  crime_level() %>% # crime function
+  assert(in_set(c("low", "median", "high")), crim_level) %>%
+  black_level() %>% # black function
+  assert(in_set(c("few-black","normal","more-black")),black_level) %>%
   select(medv,everything())
+
 ```
 

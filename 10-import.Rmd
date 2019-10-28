@@ -85,7 +85,7 @@ library(janitor)
 ## load data
 
 ```{r load data, message=FALSE}
-df <- read_csv("./data/BostonHousing.csv")
+df <- read_csv("./data/BostonHousing.csv") %>% clean_names()
 ```
 
 ## some functions

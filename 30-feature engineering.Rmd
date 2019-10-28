@@ -54,6 +54,8 @@ standardize numeric variables sometimes will make the prediction better.
 
 As standardizing the features around the center and 0 with a standard deviation of 1 is important when we compare measurements that have different units. Variables that are measured at different scales do not contribute equally to the analysis and might end up creating a bais.
 
+The test output of our data should have mean = 0, standard deviation of 1.
+
 ```{r std}
 # standardize formula
 scale2 <- function(x, na.rm = FALSE) (x - mean(x, na.rm = na.rm)) / sd(x, na.rm = na.rm)
@@ -96,19 +98,12 @@ The output should be "character" with unique values "low", "median" and "high".
 summary(df$crim)
 ggplot(df,aes(x = crim)) +
   geom_histogram()
+##
 
-
-ggplot(df,aes(x = crim_std)) +
-  geom_histogram()
-
-crime_level <- function(df) {
-  df %>% 
-    mutate(crim_level = case_when(
-      crim <= 0.09 ~ "low",
-      crim <= 3.7 ~"median",
-      TRUE ~ "high"
-    ))
+crime_level <- function(variables) {
+  
 }
+
 
 df <- crime_level(df)
 #test
@@ -141,14 +136,11 @@ summary(df$b)
 ggplot(df,aes(x = b)) +
   geom_histogram()
 
-black_level <- function(df) {
-  df %>% 
-    mutate(black_level = case_when(
-      b <= 100 ~ "few-black",
-      b <= 300 ~"normal",
-      TRUE ~ "more-black"
-    ))
+
+black_level <- function(){
+  
 }
+
 
 df <- black_level(df)
 #test

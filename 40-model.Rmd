@@ -62,8 +62,8 @@ df_final <- df %>%
   verify(is.factor(chas_fact)) %>%
   crime_level() %>% # crime function
   assert(in_set(c("low", "median", "high")), crim_level) %>%
-  black_level() %>% # black function
-  assert(in_set(c("few-black","normal","more-black")),black_level) %>%
+  #black_level() %>% # black function
+  #assert(in_set(c("few-black","normal","more-black")),black_level) %>%
   select(medv,everything())
 
 ```

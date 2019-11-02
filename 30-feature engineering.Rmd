@@ -98,12 +98,15 @@ The output should be "character" with unique values "low", "median" and "high".
 summary(df$crim)
 ggplot(df,aes(x = crim)) +
   geom_histogram()
-##
 
-crime_level <- function(variables) {
-  
+crime_level <- function(df) {
+ df %>%
+ mutate(crim_level = case_when(
+ crim <= 0.09 ~"low",
+ crim <= 3.7 ~"median",
+ TRUE ~"high"
+))
 }
-
 
 df <- crime_level(df)
 #test
@@ -138,14 +141,14 @@ ggplot(df,aes(x = b)) +
   geom_histogram()
 
 
-black_level <- function(){
+#black_level <- function(){
   
-}
+#}
 
 
-df <- black_level(df)
+#df <- black_level(df)
 #test
-unique(df$black_level)
+#unique(df$black_level)
 
 ```
 
